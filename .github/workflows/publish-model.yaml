@@ -1,0 +1,66 @@
+name: Publish Model
+
+on:
+  push:
+    tags:
+      - "*/v*"  # e.g. actions/v0.1.0, assistant/v0.2.0
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Parse tag
+        id: tag
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          MODEL_DIR="${TAG%%/v*}"
+          VERSION="${TAG#*/v}"
+          echo "model_dir=$MODEL_DIR" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Read manifest
+        id: manifest
+        run: |
+          python -c "
+          import yaml, json
+          m = yaml.safe_load(open('${{ steps.tag.outputs.model_dir }}/manifest.yaml'))
+          print(f\"name={m.get('name', '')}\")" >> "$GITHUB_OUTPUT"
+
+      - name: Package .glyphh
+        run: python scripts/publish.py ${{ steps.tag.outputs.model_dir }} --version ${{ steps.tag.outputs.version }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: "${{ steps.manifest.outputs.name }} v${{ steps.tag.outputs.version }}"
+          files: "*.glyphh"
+          generate_release_notes: true
+
+      - name: Notify platform catalog
+        if: ${{ vars.PLATFORM_API_URL != '' }}
+        continue-on-error: true
+        run: |
+          curl -s -X POST "${{ vars.PLATFORM_API_URL }}/api/v1/catalog/publish" \
+            -H "Authorization: Bearer ${{ secrets.PLATFORM_PUBLISH_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"model_dir\": \"${{ steps.tag.outputs.model_dir }}\",
+              \"version\": \"${{ steps.tag.outputs.version }}\",
+              \"release_url\": \"https://github.com/${{ github.repository }}/releases/tag/${{ steps.tag.outputs.tag }}\"
+            }"

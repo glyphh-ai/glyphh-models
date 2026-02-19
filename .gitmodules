@@ -1,0 +1,6 @@
+[submodule "actions"]
+	path = actions
+	url = https://github.com/glyphh-ai/model-actions.git
+[submodule "assistant"]
+	path = assistant
+	url = https://github.com/glyphh-ai/model-assistant.git
