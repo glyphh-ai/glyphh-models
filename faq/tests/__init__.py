@@ -1,1 +1,0 @@
-# FAQ model test suite

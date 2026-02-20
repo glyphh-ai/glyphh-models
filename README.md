@@ -1,42 +1,68 @@
 # Glyphh Models
 
-Open source example models for the [Glyphh](https://glyphh.ai) runtime.
-
-Each model is its own repository, included here as a submodule.
+Open source models for the [Glyphh](https://glyphh.ai) runtime.
 
 ## Models
 
-| Model | Description |
-|-------|-------------|
-| [actions](https://github.com/glyphh-ai/model-actions) | Helpdesk action routing — maps natural language to API actions |
-| [assistant](https://github.com/glyphh-ai/model-assistant) | Knowledge base assistant — FAQ matching and concept search |
+| Model | Category | Description |
+|-------|----------|-------------|
+| [churn](churn/) | prediction | Customer churn predictor — encodes usage metrics into HDC vectors to identify churn risk patterns |
+| [faq](faq/) | faq | FAQ helpdesk — domain-agnostic Q&A matching for knowledge base agents |
 
 ## Usage
 
 ```bash
-# Clone with all models
-git clone --recursive https://github.com/glyphh-ai/glyphh-models.git
+# Clone
+git clone https://github.com/glyphh-ai/glyphh-models.git
+
+# Test a model before deploying
+glyphh model test ./churn
 
 # Package a model
-glyphh model package ./actions
+glyphh model package ./churn
 
 # Deploy
-glyphh model deploy ./actions
+glyphh model deploy ./churn.glyphh
 ```
 
 ## Model Structure
 
-Each model directory contains:
+Every model follows the same pattern:
 
 ```
 model-name/
-├── manifest.yaml    # Model identity and metadata
-├── config.yaml      # Encoder/runtime configuration
-├── encoder.py       # Custom encoder (optional)
-├── build.py         # Build script (optional)
-└── data/            # Training data
-    └── *.jsonl
+├── manifest.yaml          # model identity and metadata
+├── config.yaml            # encoder/runtime config, auto_load_concepts
+├── encoder.py             # EncoderConfig + encode_query + entry_to_record
+├── build.py               # package model into .glyphh file
+├── tests.py               # test runner entry point
+├── data/
+│   └── *.jsonl            # training data (domain expertise)
+├── tests/
+│   ├── test-concepts.json # sample input data for testing (raw, no labels)
+│   ├── conftest.py        # shared fixtures
+│   ├── test_encoding.py   # config validation
+│   ├── test_similarity.py # matching correctness
+│   └── test_queries.py    # NL query inference
+└── README.md
 ```
+
+## Testing
+
+Each model ships with a test suite. Tests use raw input data (no labels) and verify the model correctly classifies/matches against the training patterns.
+
+```bash
+# Run via CLI
+glyphh model test ./churn
+glyphh model test ./faq -v
+
+# Or directly
+cd churn/ && python tests.py
+```
+
+## Customizing
+
+Fork a model and replace the data files with your own content. The encoder config and test structure stay the same — just update the training data and test expectations.
 
 ## License
 
