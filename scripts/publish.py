@@ -21,7 +21,9 @@ PACKAGE_INCLUDES = [
     "config.yaml",
     "encoder.py",
     "build.py",
+    "tests.py",
     "data",
+    "tests",
 ]
 
 
