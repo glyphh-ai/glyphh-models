@@ -11,3 +11,7 @@ build/
 *.swp
 *.swo
 *~
+
+# Dev-only (monorepo scripts, not for public repo)
+dev-*.sh
+benchmark/results/
