@@ -4,3 +4,6 @@
 [submodule "faq"]
 	path = faq
 	url = https://github.com/glyphh-ai/model-faq.git
+[submodule "toolrouter"]
+	path = toolrouter
+	url = https://github.com/glyphh-ai/model-toolrouter.git
