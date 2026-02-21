@@ -8,6 +8,7 @@ Open source models for the [Glyphh](https://glyphh.ai) runtime.
 |-------|----------|-------------|
 | [churn](churn/) | prediction | Customer churn predictor — encodes usage metrics into HDC vectors to identify churn risk patterns |
 | [faq](faq/) | faq | FAQ helpdesk — domain-agnostic Q&A matching for knowledge base agents |
+| [toolrouter](toolrouter/) | routing | DevOps tool router — routes natural language requests to release step functions via HDC similarity |
 
 ## Usage
 
