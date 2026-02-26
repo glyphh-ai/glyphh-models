@@ -6,6 +6,7 @@ Open source models for the [Glyphh](https://glyphh.ai) runtime.
 
 | Model | Category | Description |
 |-------|----------|-------------|
+| [bfcl](bfcl/) | benchmark | Berkeley Function Calling Leaderboard — 3-model HDC architecture for function routing + pattern matching + observer ensemble |
 | [churn](churn/) | prediction | Customer churn predictor — encodes usage metrics into HDC vectors to identify churn risk patterns |
 | [faq](faq/) | faq | FAQ helpdesk — domain-agnostic Q&A matching for knowledge base agents |
 | [intent](intent/) | intent | Shared NL intent extraction — verb/noun/domain extraction with rule-based fast path + HDC similarity fallback |
