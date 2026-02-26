@@ -7,3 +7,6 @@
 [submodule "toolrouter"]
 	path = toolrouter
 	url = https://github.com/glyphh-ai/model-toolrouter.git
+[submodule "intent"]
+	path = intent
+	url = https://github.com/glyphh-ai/model-intent.git
