@@ -1,58 +1,35 @@
 # Glyphh Models
 
-Open source models for the [Glyphh](https://glyphh.ai) runtime.
+Open source HDC models for the [Glyphh](https://glyphh.ai) runtime.
 
-## Models
+Browse and deploy models from the **[Glyphh Hub →](https://glyphh.ai/hub)**
 
-| Model | Category | Description |
-|-------|----------|-------------|
-| [bfcl](bfcl/) | benchmark | Berkeley Function Calling Leaderboard — 3-model HDC architecture for function routing + pattern matching + observer ensemble |
-| [churn](churn/) | prediction | Customer churn predictor — encodes usage metrics into HDC vectors to identify churn risk patterns |
-| [faq](faq/) | faq | FAQ helpdesk — domain-agnostic Q&A matching for knowledge base agents |
-| [toolrouter](toolrouter/) | routing | SaaS tool router — routes natural language requests to the correct tool function via HDC similarity |
+---
 
-## Usage
+## Repository Structure
 
-```bash
-# Clone
-git clone https://github.com/glyphh-ai/glyphh-models.git
-
-# Test a model before deploying
-glyphh model test ./churn
-
-# Package a model
-glyphh model package ./churn
-
-# Deploy
-glyphh model deploy ./churn.glyphh
-```
-
-## Model Structure
-
-Every model follows the same pattern:
+Each model lives as a git submodule under this repo. The structure is the same
+for every model:
 
 ```
 model-name/
-├── manifest.yaml          # model identity and metadata
-├── config.yaml            # encoder/runtime config, auto_load_concepts
-├── encoder.py             # EncoderConfig + encode_query + entry_to_record
-├── build.py               # package model into .glyphh file
-├── tests.py               # test runner entry point
+├── manifest.yaml        # identity, version, tags
+├── config.yaml          # encoder config, similarity thresholds
+├── encoder.py           # EncoderConfig + encode_query()
+├── build.py             # package into .glyphh file
 ├── data/
-│   └── *.jsonl            # training data (domain expertise)
+│   └── *.jsonl          # training exemplars
 ├── tests/
-│   ├── test-concepts.json # sample input data for testing (raw, no labels)
-│   ├── conftest.py        # shared fixtures
-│   ├── test_encoding.py   # config validation
-│   ├── test_similarity.py # matching correctness
-│   └── test_queries.py    # NL query inference
-└── README.md
+│   ├── conftest.py
+│   ├── test_encoding.py
+│   └── test_similarity.py
+└── benchmark/           # evaluation queries and results
 ```
 
 ## NL Intent Extraction
 
-Natural language intent extraction (action, target, domain, keywords) is handled
-by the Glyphh SDK directly — no separate model needed:
+Intent extraction (action, target, domain, keywords) is built into the SDK —
+no separate model required:
 
 ```python
 from glyphh.intent import IntentExtractor
@@ -60,32 +37,16 @@ from glyphh.intent import IntentExtractor
 extractor = IntentExtractor()
 result = extractor.extract("Send a message to #general on Slack")
 # {"action": "send", "target": "channel", "domain": "messaging", "keywords": "..."}
-
-# With domain packs for specialized vocabularies
-extractor = IntentExtractor(packs=["filesystem", "trading"])
 ```
 
-All models that need NL extraction import from `glyphh.intent`. Domain packs
-(filesystem, trading, travel, social, math, vehicle) are bundled with the SDK.
+Domain packs (filesystem, trading, travel, social, math, vehicle) are bundled
+with the SDK. See [docs](https://glyphh.ai/docs) for details.
 
-## Testing
+## Contributing a Model
 
-Each model ships with a test suite. Tests use raw input data (no labels) and verify
-the model correctly classifies/matches against the training patterns.
-
-```bash
-# Run via CLI
-glyphh model test ./churn
-glyphh model test ./faq -v
-
-# Or directly
-cd churn/ && python tests.py
-```
-
-## Customizing
-
-Fork a model and replace the data files with your own content. The encoder config
-and test structure stay the same — just update the training data and test expectations.
+1. Create a new model repo under `glyphh-ai/model-<name>`
+2. Follow the structure above
+3. Open a PR adding it as a submodule here
 
 ## License
 
